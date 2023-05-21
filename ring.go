@@ -8,6 +8,8 @@ import (
 	"github.com/spaolacci/murmur3"
 )
 
+const RingSize = 360
+
 type Node struct {
 	Key    string
 	HashId uint64
@@ -29,18 +31,16 @@ func (n Nodes) Swap(i, j int)      { n[i], n[j] = n[j], n[i] }
 func (n Nodes) Less(i, j int) bool { return n[i].HashId < n[j].HashId }
 
 func Hash(data []byte) uint64 {
-	return murmur3.Sum64(data) % 360
+	return murmur3.Sum64(data) % RingSize
 }
 
 type Ring struct {
 	Nodes Nodes
 	sync.Mutex
-
-	ringSize int
 }
 
 func NewRing() *Ring {
-	return &Ring{Nodes: Nodes{}, ringSize: 360}
+	return &Ring{Nodes: Nodes{}}
 }
 
 func (r *Ring) AddNode(id string) {
